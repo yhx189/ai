@@ -21,6 +21,7 @@ def mean(L):
 
 		
 def median(L):
+	L.sort()
 	if len(L)%2 == 0:
 		return (L[len(L)/2] + L[len(L)/2-1])/float(2)
 	else:
