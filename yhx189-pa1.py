@@ -32,23 +32,28 @@ def median(L):
 def bfs(tree,elem):
 	q = deque()
 	q.append(tree)
+	print tree[0]
 	while len(q) != 0:
 		cur = q.popleft()
 		if isinstance(cur,int):
 			cur_ele = cur
 		else:
 			cur_ele = cur[0]
-		print cur_ele
+		#print cur_ele
 		if isinstance(cur, list):
 			for it in cur[1:]:
 				if isinstance(it, int):
+					print "int"
 					if it == elem:
+						print it
 						return True
 				if isinstance(it,list):
+					print it[0]
 					if it[0] == elem:
-						print it[0]
+						#print it[0]
 						return True
-					q.append(it)
+					if len(it) > 1:
+						q.append(it)
 	return False
 
 def dfs(tree,elem):
@@ -125,7 +130,6 @@ class TTTBoard():
 # This file includes a set of tests to make sure that your code behaves as
 #    expected. These tests are not at all intended to be exhaustive. You
 #    should design more tests for your code in addition to these. 
-
 print "\nProblem 1: \n"
         
 print "twoToTheN test case #1: " + str(twoToTheN(3) == 8)
@@ -142,8 +146,8 @@ print "median test case #1: " + str(median(x) == 2)
 print "median test case #2: " + str(median(y) == 2.5)
 
 print "\nProblem 3: \n"
-
-myTree = [4, [10, [33], [2]], [3], [14, [12]], [1]]
+myTree = [4, [10, [33], [2]], [3, [12]], [14, [12]], [1]] 
+#myTree = [4, [10, [33,  [22, [10], [5]], [2, [6]]], [3], [14, [12]], [1]]]
 print "bfs test case #1: " + str(bfs(myTree, 1) == True)
 print "bfs test case #2: " + str(bfs(myTree, 7) == False)
 print "dfs test case #1: " + str(dfs(myTree, 1) == True)
