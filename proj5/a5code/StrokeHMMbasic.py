@@ -188,16 +188,16 @@ class HMM:
                 prob *= self.emissions[state][f][fval]
                 
         return prob 
-
-""" 
-Part 1: for test using the in-class example
-"""
+""" Part 1: for test, using the in-class example
 class test:
     def __init__(self):
     	self.labels = ['sunny', 'cloudy', 'rainy']
 	self.featureNames= ['model']
 	self.contOrDisc = {'model': DISCRETE}
 	self.numFVals = {'model':4}
+	#self.featureNames = ['dry', 'dryish', 'damp', 'soggy']
+	#self.contOrDisc = {'dry': DISCRETE, 'dryish': DISCRETE, 'damp': DISCRETE, 'soggy':DISCRETE}
+	#self.numFVals = {'dry':2, 'dryish':2, 'damp':2 , 'soggy':2}
 	self.hmm = HMM( self.labels, self.featureNames, self.contOrDisc, self.numFVals )
         self.data = [{'model':0}, {'model' :2}, {'model': 3}]
 	self.hmm.priors = {'sunny': 0.63, 'cloudy':0.17, 'rainy':0.20}
@@ -205,6 +205,7 @@ class test:
 	self.hmm.emissions = {'sunny':{'model':[0.60,0.20,0.15,0.05]}, 'cloudy':{'model':[0.25,0.25,0.25,0.25]}, 'rainy':{'model':[0.05,0.10,0.35,0.50]} }
 	self.hmm.label(self.data)
 
+"""
 class StrokeLabeler:
     def confusion(self, trueLabels, classifications):
     	confusion = {}
@@ -270,10 +271,9 @@ class StrokeLabeler:
         #    name to whether it is continuous or discrete
         # numFVals is a dictionary specifying the number of legal values for
         #    each discrete feature
-        self.featureNames = ['length', 'curvature', 'boxarea', 'boxratio', 'top', 'bottom']#,'speed']
-        self.contOrDisc = {'top':CONTINUOUS, 'bottom':CONTINUOUS, 'length': DISCRETE, 'curvature':CONTINUOUS, 'boxarea': DISCRETE, 'boxratio':DISCRETE} #, 'speed':CONTINUOUS}
-        #self.numFVals = {}
-	self.numFVals = { 'length': 2, 'boxratio':2, 'boxarea':2 }
+        self.featureNames = ['length']
+        self.contOrDisc = {'length': DISCRETE}
+        self.numFVals = { 'length': 2}
 
     def featurefy( self, strokes ):
         ''' Converts the list of strokes into a list of feature dictionaries
@@ -287,6 +287,7 @@ class StrokeLabeler:
             # If we wanted to use length as a continuous feature, we
             # would simply use the following line to set its value
             #d['length'] = s.length()
+
             # To use it as a discrete feature, we have to "bin" it, that is
             # we define ranges for "short" (<300 units) and "long" (>=300 units)
             # Short strokes get a discrete value 0, long strokes get
@@ -304,29 +305,15 @@ class StrokeLabeler:
                 d['length'] = 0
             else:
                 d['length'] = 1
-	  
-		
-	    d['curvature'] = s.sumOfCurvature(abs,1)
+
             # We can add more features here just by adding them to the dictionary
             # d as we did with length.  Remember that when you add features,
             # you also need to add them to the three member data structures
             # above in the contructor: self.featureNames, self.contOrDisc,
             #    self.numFVals (for discrete features only)
 
-	    #d['boxarea'] = s.boxArea()
-	    if s.boxArea() < 3000:
-	        d['boxarea'] = 0
-	    else:
-	    	d['boxarea'] = 1
-	    #d['boxratio'] = s.boxRatio()
-	    if s.boxRatio() < 1:
-	    	d['boxratio'] = 0
-	    else:
-	    	d['boxratio'] = 1
-	    d['top'] = s.top()
-	    d['bottom'] = s.bottom()
-            #d['speed'] = s.writingSpeed()
-	    ret.append(d)  # append the feature dictionary to the list
+
+            ret.append(d)  # append the feature dictionary to the list
             
         return ret
     
@@ -355,6 +342,7 @@ class StrokeLabeler:
         
         tFiles = [ trainingDir + "/" + f for f in goodList ] 
         self.trainHMM(tFiles)
+   
     def labelFile( self, strokeFile, outFile ):
         ''' Label the strokes in the file strokeFile and save the labels
             (with the strokes) in the outFile '''
@@ -646,67 +634,5 @@ class Stroke:
         return ret / len(self.points)
 
     # You can (and should) define more features here
-    def boxArea(self):
-    	xmin = 10000
-	xmax = 0
-	ymin = 10000
-	ymax = 0
-	for p in self.points:
-		if p[0] < xmin:
-			xmin = p[0]
-		if p[0] > xmax:
-			xmax = p[0]
-		if p[1] < ymin:
-			ymin = p[1]
-		if p[1] > ymax:
-			ymax = p[1]
-	area = (xmax - xmin) * (ymax - ymin)
-	
-	return area
-    def boxRatio(self):
-    	xmin = 10000
-	xmax = 0
-	ymin = 10000
-	ymax = 0
-	for p in self.points:
-		if p[0] < xmin:
-			xmin = p[0]
-		if p[0] > xmax:
-			xmax = p[0]
-		if p[1] < ymin:
-			ymin = p[1]
-		if p[1] > ymax:
-			ymax = p[1]
-	if xmax == xmin:
-		return 10000
-	ratio = (ymax - ymin) /float( (xmax - xmin))
-	
-	return ratio
-    
-
-    def writingSpeed(self):
-    	start = self.points[0][2]
-	end = self.points[len(self.points) - 1][2]
-	if start == end:
-		speed = 10
-	else:
-		speed = float(self.length())/(end - start)
-	return speed
-
-    def top(self):
-    	ymax = 0
-	for p in self.points:
-		if p[1] > ymax:
-			ymax = p[1]
-	return float(ymax)
-
-    def bottom(self):
-    	ymin = 1000000
-	for p in self.points:
-		if p[1] < ymin:
-			ymin = p[1]
-
-	return float(ymin)
-
 
 
